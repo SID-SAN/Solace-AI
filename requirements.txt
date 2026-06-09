@@ -1,0 +1,9 @@
+gradio
+llama-cpp-python
+sentence-transformers
+SpeechRecognition
+gTTS
+huggingface_hub
+torch
+sounddevice
+soundfile
