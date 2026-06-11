@@ -49,18 +49,18 @@ class SolaceEngine:
             raise e
 
     def generate_response(self, user_message):
-        """Appends user message to session context and returns LLM output."""
-        self.messages.append({"role": "user", "content": user_message})
-        
-        output = self.llm.create_chat_completion(
-            messages=self.messages,
-            temperature=0.7,
-            max_tokens=512
-        )
-        
-        reply = output["choices"][0]["message"]["content"]
-        self.messages.append({"role": "assistant", "content": reply})
-        return reply
+            """Appends user message to session context and returns LLM output."""
+            self.messages.append({"role": "user", "content": user_message})
+            
+            output = self.llm.create_chat_completion(
+                messages=self.messages,
+                temperature=0.7,
+                max_tokens=512
+            )
+            
+            reply = output["choices"][0]["message"]["content"]
+            self.messages.append({"role": "assistant", "content": reply})
+            return reply
 
     def clear_history(self):
         """Resets the chat context back to the baseline system prompt."""

@@ -6,7 +6,11 @@ print("Initializing Solace Engine...")
 engine = SolaceEngine()
 
 def chat_with_voice(user_text, audio_input, chat_history):
-
+    """
+    Main controller function updating history using the 
+    Gradio 'messages' dictionary format.
+    """
+    # 1. Determine user input source
     if audio_input is not None:
         user_message = transcribe_audio(audio_input)
     else:
@@ -15,16 +19,20 @@ def chat_with_voice(user_text, audio_input, chat_history):
     if not user_message:
         return "", None, chat_history
 
+    # 2. Generate therapeutic response
     reply = engine.generate_response(user_message)
 
+    # 3. Synthesize speech
     temp_audio_path = generate_voice(reply)
 
-    chat_history.append((user_message, reply))
+    # 4. Update history using dictionaries (Required for type="messages")
+    chat_history.append({"role": "user", "content": user_message})
+    chat_history.append({"role": "assistant", "content": reply})
     
     return "", temp_audio_path, chat_history
 
 def reset_chat():
-    """Clears both the UI components and the underlying LLM context."""
+    """Resets UI components and model memory."""
     engine.clear_history()
     return [], "", None
 
