@@ -6,30 +6,22 @@ print("Initializing Solace Engine...")
 engine = SolaceEngine()
 
 def chat_with_voice(user_text, audio_input, chat_history):
-    """
-    Main controller function updating history using the 
-    Gradio 'messages' dictionary format.
-    """
-    # 1. Determine user input source
+
     if audio_input is not None:
         user_message = transcribe_audio(audio_input)
     else:
         user_message = user_text.strip() if user_text else ""
 
     if not user_message:
-        return "", None, chat_history
+        return "", audio_input, None, chat_history
 
-    # 2. Generate therapeutic response
     reply = engine.generate_response(user_message)
-
-    # 3. Synthesize speech
     temp_audio_path = generate_voice(reply)
 
-    # 4. Update history using dictionaries (Required for type="messages")
     chat_history.append({"role": "user", "content": user_message})
     chat_history.append({"role": "assistant", "content": reply})
     
-    return "", temp_audio_path, chat_history
+    return "", None, temp_audio_path, chat_history
 
 def reset_chat():
     """Resets UI components and model memory."""
@@ -63,13 +55,13 @@ with gr.Blocks(title="Solace AI") as demo:
     text_input.submit(
         fn=chat_with_voice, 
         inputs=[text_input, audio_input, chatbot], 
-        outputs=[text_input, output_audio, chatbot]
+        outputs=[text_input, audio_input, output_audio, chatbot]
     )
     
-    audio_input.change(
+    audio_input.stop_recording(
         fn=chat_with_voice, 
         inputs=[text_input, audio_input, chatbot], 
-        outputs=[text_input, output_audio, chatbot]
+        outputs=[text_input, audio_input, output_audio, chatbot]
     )
     
     clear_btn.click(
