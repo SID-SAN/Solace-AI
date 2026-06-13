@@ -49,7 +49,7 @@ class SolaceEngine:
             raise e
 
     def generate_response(self, user_message):
-            """Appends user message to session context and returns LLM output."""
+            """Appends user message to session context, gets LLM output, and strips out thoughts."""
             self.messages.append({"role": "user", "content": user_message})
             
             output = self.llm.create_chat_completion(
@@ -58,7 +58,21 @@ class SolaceEngine:
                 max_tokens=512
             )
             
-            reply = output["choices"][0]["message"]["content"]
+            raw_reply = output["choices"][0]["message"]["content"]
+            
+            if "</think>" in raw_reply:
+                reply = raw_reply.split("</think>")[-1].strip()
+            
+            elif "\n\n" in raw_reply:
+                lines = [line.strip() for line in raw_reply.split("\n\n") if line.strip()]
+                reply = lines[-1]
+            else:
+                reply = raw_reply.strip()
+                
+            if not reply:
+                reply = raw_reply.strip()
+            # -------------------------------
+
             self.messages.append({"role": "assistant", "content": reply})
             return reply
 
